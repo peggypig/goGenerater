@@ -1,5 +1,5 @@
 /**
- * @Desc
+ * @Desc  逆向工程需要的model
  * @author zjhfyq
  * @data 2018/3/20 11:11.
  */

@@ -1,5 +1,5 @@
 /**
- * @Desc
+ * @Desc 数据库操作
  * @author zjhfyq
  * @data 2018/3/20 11:06.
  */
