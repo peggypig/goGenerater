@@ -1,6 +1,5 @@
 package models
 
-import "time"
 
 type users struct {
 	username	string

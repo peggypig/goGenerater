@@ -49,8 +49,13 @@ func LoadDatasourceConfig(cfg *goconfig.ConfigFile) (ds DataSource){
 	return
 }
 
-func LoadModelsMapping()  {
-
+//获取表名和结构体名的映射关系
+func LoadModelsMapping(cfg *goconfig.ConfigFile)(modelMappings map[string]string)  {
+	modelMappings , err :=cfg.GetSection("ModelsMapping")
+	if err != nil {
+		log.Println("not found config [ModelMapping], the struct will be named tablename")
+	}
+	return
 }
 
 //获取文件生成策略

@@ -23,6 +23,11 @@ func Run() {
 	db := GetDB(ds)
 	//获取数据库表名
 	tableNames := GetTableNames(db, ds.DbName)
+	//获取model和table名称的映射配置
+	modelMappings :=LoadModelsMapping(cfg)
+
+
+
 	if gs.OneFile {
 		//生成在一个文件中
 		file, err := os.OpenFile(gs.FilePath + string(os.PathSeparator) + gs.FileName,os.O_RDWR,0777)
@@ -32,46 +37,48 @@ func Run() {
 			//延迟关闭文件
 			defer file.Close()
 			log.Println("output file===>",string(gs.FilePath + string(os.PathSeparator) + gs.FileName))
-			GeneraterOneFile(file, gs, tableNames, ds, db)
+			GeneraterOneFile(file, gs, tableNames, ds, db,modelMappings)
 		}
 	} else {
-		GeneraterMulFile(gs,tableNames,ds,db)
+		GeneraterMulFile(gs,tableNames,ds,db,modelMappings)
 	}
 }
 
-func GeneraterMulFile( gs GenerationStrategy, tableNames []string, ds DataSource, db *sql.DB)  {
+func GeneraterMulFile( gs GenerationStrategy, tableNames []string, ds DataSource, db *sql.DB,modelMappings  map[string]string)  {
 	//写入包名
 	for _, tableName := range tableNames {
 		log.Printf("output model===>%s",tableName)
 		fields := GetFieldByTableName(db, ds.DbName, tableName)
+
+
 		file ,err := os.Create(gs.FilePath+string(os.PathSeparator)+tableName+".go")
 		if err != nil{
 			panic(err)
 		}else {
 			defer file.Close()
 			file.WriteString("package " + gs.PackageName + "\n\n\n")
-			WriteFile(file, tableName,fields)
+			WriteFile(file, tableName,fields,modelMappings)
 		}
 	}
 }
 
-func GeneraterOneFile(file *os.File, gs GenerationStrategy, tableNames []string, ds DataSource, db *sql.DB) {
+func GeneraterOneFile(file *os.File, gs GenerationStrategy, tableNames []string, ds DataSource, db *sql.DB,modelMappings  map[string]string) {
 	//写入包名
 	file.WriteString("package " + gs.PackageName + "\n\n\n")
 	for _, tableName := range tableNames {
 		log.Printf("output model===>%s",tableName)
 		fields := GetFieldByTableName(db, ds.DbName, tableName)
-		WriteFile(file, tableName,fields)
+		WriteFile(file, tableName,fields,modelMappings)
 	}
 }
 
-func WriteFile(file *os.File, tableName string,fields []Field) {
-	/**
-	type ModelMapping struct {
-		ModelName string
-		TableName string
+func WriteFile(file *os.File, tableName string,fields []Field,modelMappings map[string]string) {
+
+	//如果存在映射关系
+	if tName ,ok := modelMappings[tableName];ok{
+		tableName = tName
 	}
-	*/
+
 	file.WriteString("type "+ tableName+ " struct {\n")
 	for _,field := range fields {
 		log.Printf("output model===>%s's field ===>%s ",tableName,field.FieldName)

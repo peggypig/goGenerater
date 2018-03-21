@@ -14,10 +14,7 @@ type DataSource struct {
 	DbName         string
 }
 
-type ModelMapping struct {
-	ModelName string
-	TableName string
-}
+
 
 type Field struct {
 	FieldName  string      //字段名
