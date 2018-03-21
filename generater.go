@@ -57,6 +57,8 @@ func GeneraterMulFile( gs GenerationStrategy, tableNames []string, ds DataSource
 		}else {
 			defer file.Close()
 			file.WriteString("package " + gs.PackageName + "\n\n\n")
+			//导包
+			WriteImport(fields,file)
 			WriteFile(file, tableName,fields,modelMappings)
 		}
 	}
@@ -68,7 +70,20 @@ func GeneraterOneFile(file *os.File, gs GenerationStrategy, tableNames []string,
 	for _, tableName := range tableNames {
 		log.Printf("output model===>%s",tableName)
 		fields := GetFieldByTableName(db, ds.DbName, tableName)
+
+		//导包
+		WriteImport(fields,file)
+
 		WriteFile(file, tableName,fields,modelMappings)
+	}
+}
+
+//写入导包
+func WriteImport(fields [] Field,file *os.File)  {
+	for _,field :=range  fields {
+		if strings.Contains(field.Type,"time") {
+			file.WriteString("import \"time\" \n\n\n")
+		}
 	}
 }
 
